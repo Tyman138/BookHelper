@@ -12,7 +12,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
-        android:text="Название книги :"
+        android:text="Произведение :"
         app:layout_constraintStart_toEndOf="@+id/colorView"
         app:layout_constraintTop_toTopOf="parent" />
 

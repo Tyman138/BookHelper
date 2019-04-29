@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
                             Snackbar.make(view, "Автор не добавлен, не все поля заполненны", Snackbar.LENGTH_LONG).show();
                         } else {
                             authors.add(new Author(name.getText().toString(), country.getText().toString(), years.getText().toString()));
-                            fileList();
+                            mAdapter.notifyDataSetChanged();
                         }
                     });
             alertDialog.setNegativeButton("Отмена",

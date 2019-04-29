@@ -13,6 +13,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.widget.EditText;
 
 import com.example.bookhelper.RecyclerViewDercirator.SpacesItemDecoration;
 import com.example.bookhelper.entity.Book;
@@ -54,12 +55,30 @@ public class BooksActivity extends AppCompatActivity {
             alertDialog.setPositiveButton("Добавить",
                     (dialog, which) -> {
                         Dialog f = (Dialog) dialog;
-                        if (2 == 1)//FIXME
-                        {
-                            Snackbar.make(view, "Книга не добавлена, не все поля заполненны", Snackbar.LENGTH_LONG).show();
+                        EditText addBookNameET = f.findViewById(R.id.addBookNameET);
+                        EditText addGengreET = f.findViewById(R.id.addGenreET);
+                        EditText addNumbersOfPagesET = f.findViewById(R.id.addNumbersOfPagesET);
+                        EditText addLangET = f.findViewById(R.id.addLangET);
+                        EditText addEditionET = f.findViewById(R.id.addEditionET);
+                        EditText addPublisherET = f.findViewById(R.id.addPublisherET);
+                        if (addBookNameET.getText().toString().isEmpty()
+                                || addGengreET.getText().toString().isEmpty()
+                                || addNumbersOfPagesET.getText().toString().isEmpty()
+                                || addLangET.getText().toString().isEmpty()
+                                || addEditionET.getText().toString().isEmpty()
+                                || addPublisherET.getText().toString().isEmpty()) {
+                            Snackbar.make(view, "Произведение не добавлено, не все поля заполненны", Snackbar.LENGTH_LONG).show();
                         } else {
-                            Snackbar.make(view, "addIncoming", Snackbar.LENGTH_LONG).show();
-                            fileList();
+                            books.add(new Book(
+                                    addBookNameET.getText().toString(),
+                                    addGengreET.getText().toString(),
+                                    addNumbersOfPagesET.getText().toString(),
+                                    addLangET.getText().toString(),
+                                    addEditionET.getText().toString(),
+                                    addPublisherET.getText().toString()
+                            ));
+                           // Snackbar.make(view, "addIncoming", Snackbar.LENGTH_LONG).show();
+                            mAdapter.notifyDataSetChanged();
                         }
                     });
             alertDialog.setNegativeButton("Отмена",
