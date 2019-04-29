@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.bookhelper.R;
@@ -82,8 +83,48 @@ public class BooksRecyclerViewAdapter extends RecyclerView.Adapter<BooksRecycler
                         break;
 
                     case DialogInterface.BUTTON_NEGATIVE:
-                        Snackbar.make(v, "Change incoming...", Snackbar.LENGTH_LONG)
-                                .setAction("Action", null).show();
+                        AlertDialog.Builder alertDialog = new AlertDialog.Builder(ctx);
+                        LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                        View tempView = inflater.inflate(R.layout.new_book, null);
+                        alertDialog.setView(tempView);
+
+                        EditText addBookNameET = tempView.findViewById(R.id.addBookNameET);
+                        EditText addGengreET = tempView.findViewById(R.id.addGenreET);
+                        EditText addNumbersOfPagesET = tempView.findViewById(R.id.addNumbersOfPagesET);
+                        EditText addLangET = tempView.findViewById(R.id.addLangET);
+                        EditText addEditionET = tempView.findViewById(R.id.addEditionET);
+                        EditText addPublisherET = tempView.findViewById(R.id.addPublisherET);
+
+                        addBookNameET.setText(books.get(position).getName());
+                        addGengreET.setText(books.get(position).getGenre());
+                        addNumbersOfPagesET.setText(books.get(position).getNumbersOfPages());
+                        addLangET.setText(books.get(position).getLanguage());
+                        addEditionET.setText(books.get(position).getEdition());
+                        addPublisherET.setText(books.get(position).getPublisher());
+
+
+                        alertDialog.setPositiveButton("Изменить",
+                                (sDialog, sWhich) -> {
+                                    if (addBookNameET.getText().toString().isEmpty()
+                                            || addGengreET.getText().toString().isEmpty()
+                                            || addNumbersOfPagesET.getText().toString().isEmpty()
+                                            || addLangET.getText().toString().isEmpty()
+                                            || addEditionET.getText().toString().isEmpty()
+                                            || addPublisherET.getText().toString().isEmpty()) {
+                                        Snackbar.make(v, "Произведение не  было изменено, не все поля заполненны", Snackbar.LENGTH_LONG).show();
+                                    } else {
+                                        books.get(position).setName(addBookNameET.getText().toString());
+                                        books.get(position).setGenre(addGengreET.getText().toString());
+                                        books.get(position).setNumbersOfPages(addNumbersOfPagesET.getText().toString());
+                                        books.get(position).setLanguage(addLangET.getText().toString());
+                                        books.get(position).setEdition(addEditionET.getText().toString());
+                                        books.get(position).setPublisher(addPublisherET.getText().toString());
+                                        notifyDataSetChanged();
+                                    }
+                                });
+                        alertDialog.setNegativeButton("Отмена",
+                                (sDialog, sWhich) -> sDialog.cancel());
+                        alertDialog.show();
                         break;
                 }
             };

@@ -24,30 +24,32 @@ import com.example.bookhelper.reacyclerAdapter.AuthorsRecyclerVIewAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.realm.Realm;
+
 public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     public List<Author> authors;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private Realm realm;//FIXME
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
+        Realm.init(this);//FixME
+        realm = Realm.getDefaultInstance();//FIXME
         setSupportActionBar(toolbar);
-
-        Author author = new Author("А.С. Пушкин","Россия","26 мая 1799 - 29 января 1837");
         authors = new ArrayList<>();
-        authors.add(author);
-        authors.add(author);
-        authors.add(author);
-        authors.add(author);
-        authors.add(author);
-        authors.add(author);
-        authors.add(author);
-        authors.add(author);
-        authors.add(author);
-        authors.add(author);
+        authors.add(new Author("А.С. Пушкин","Россия","26 мая 1799 - 29 января 1837"));
+        authors.add(new Author("А.С. Пушкин","Россия","26 мая 1799 - 29 января 1837"));
+        authors.add(new Author("А.С. Пушкин","Россия","26 мая 1799 - 29 января 1837"));
+        authors.add(new Author("А.С. Пушкин","Россия","26 мая 1799 - 29 января 1837"));
+        authors.add(new Author("А.С. Пушкин","Россия","26 мая 1799 - 29 января 1837"));
+        authors.add(new Author("А.С. Пушкин","Россия","26 мая 1799 - 29 января 1837"));
+        authors.add(new Author("А.С. Пушкин","Россия","26 мая 1799 - 29 января 1837"));
+        authors.add(new Author("А.С. Пушкин","Россия","26 мая 1799 - 29 января 1837"));
+        authors.add(new Author("А.С. Пушкин","Россия","26 мая 1799 - 29 января 1837"));
 
         getUI();
 

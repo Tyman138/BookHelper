@@ -34,17 +34,16 @@ public class BooksActivity extends AppCompatActivity {
         setContentView(R.layout.activity_books);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        Book book = new Book("Сказка о рыбаке и рыбке", "Сказка", "16", "Русский", "200", "АСТ");
         books = new ArrayList<>();
-        books.add(book);
-        books.add(book);
-        books.add(book);
-        books.add(book);
-        books.add(book);
-        books.add(book);
-        books.add(book);
-        books.add(book);
-        books.add(book);
+        books.add(new Book("Сказка о рыбаке и рыбке", "Сказка", "16", "Русский", "200", "АСТ"));
+        books.add(new Book("Сказка о рыбаке и рыбке", "Сказка", "16", "Русский", "200", "АСТ"));
+        books.add(new Book("Сказка о рыбаке и рыбке", "Сказка", "16", "Русский", "200", "АСТ"));
+        books.add(new Book("Сказка о рыбаке и рыбке", "Сказка", "16", "Русский", "200", "АСТ"));
+        books.add(new Book("Сказка о рыбаке и рыбке", "Сказка", "16", "Русский", "200", "АСТ"));
+        books.add(new Book("Сказка о рыбаке и рыбке", "Сказка", "16", "Русский", "200", "АСТ"));
+        books.add(new Book("Сказка о рыбаке и рыбке", "Сказка", "16", "Русский", "200", "АСТ"));
+        books.add(new Book("Сказка о рыбаке и рыбке", "Сказка", "16", "Русский", "200", "АСТ"));
+        books.add(new Book("Сказка о рыбаке и рыбке", "Сказка", "16", "Русский", "200", "АСТ"));
 
         getUI();
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -77,7 +76,6 @@ public class BooksActivity extends AppCompatActivity {
                                     addEditionET.getText().toString(),
                                     addPublisherET.getText().toString()
                             ));
-                           // Snackbar.make(view, "addIncoming", Snackbar.LENGTH_LONG).show();
                             mAdapter.notifyDataSetChanged();
                         }
                     });
