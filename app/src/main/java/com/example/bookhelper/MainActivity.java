@@ -3,7 +3,6 @@ package com.example.bookhelper;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -21,39 +20,27 @@ import com.example.bookhelper.RecyclerViewDercirator.SpacesItemDecoration;
 import com.example.bookhelper.entity.Author;
 import com.example.bookhelper.reacyclerAdapter.AuthorsRecyclerVIewAdapter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import io.realm.Realm;
 
 public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
-    public List<Author> authors;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    private Realm realm;//FIXME
+    private Realm realm;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Realm.init(this);
+        realm = Realm.getDefaultInstance();
+
         Toolbar toolbar = findViewById(R.id.toolbar);
-        Realm.init(this);//FixME
-        realm = Realm.getDefaultInstance();//FIXME
         setSupportActionBar(toolbar);
-        authors = new ArrayList<>();
-        authors.add(new Author("А.С. Пушкин","Россия","26 мая 1799 - 29 января 1837"));
-        authors.add(new Author("А.С. Пушкин","Россия","26 мая 1799 - 29 января 1837"));
-        authors.add(new Author("А.С. Пушкин","Россия","26 мая 1799 - 29 января 1837"));
-        authors.add(new Author("А.С. Пушкин","Россия","26 мая 1799 - 29 января 1837"));
-        authors.add(new Author("А.С. Пушкин","Россия","26 мая 1799 - 29 января 1837"));
-        authors.add(new Author("А.С. Пушкин","Россия","26 мая 1799 - 29 января 1837"));
-        authors.add(new Author("А.С. Пушкин","Россия","26 мая 1799 - 29 января 1837"));
-        authors.add(new Author("А.С. Пушкин","Россия","26 мая 1799 - 29 января 1837"));
-        authors.add(new Author("А.С. Пушкин","Россия","26 мая 1799 - 29 января 1837"));
 
         getUI();
-
-       final FloatingActionButton fab = findViewById(R.id.fab);
+        final FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
             AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
             LayoutInflater inflater = MainActivity.this.getLayoutInflater();
@@ -69,8 +56,20 @@ public class MainActivity extends AppCompatActivity {
                                 years.getText().toString().isEmpty()) {
                             Snackbar.make(view, "Автор не добавлен, не все поля заполненны", Snackbar.LENGTH_LONG).show();
                         } else {
-                            authors.add(new Author(name.getText().toString(), country.getText().toString(), years.getText().toString()));
-                            mAdapter.notifyDataSetChanged();
+                            realm.executeTransaction(realm -> {
+                                Number currentId = realm.where(Author.class).max("id");
+                                int nextId;
+                                if (currentId == null) {
+                                    nextId = 0;
+                                } else {
+                                    nextId = currentId.intValue() + 1;
+                                }
+                                Author author = realm.createObject(Author.class, nextId);
+                                author.setName(name.getText().toString());
+                                author.setCountry(country.getText().toString());
+                                author.setYearsOfLiving(years.getText().toString());
+                                realm.insert(author);
+                            });
                         }
                     });
             alertDialog.setNegativeButton("Отмена",
@@ -78,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
             alertDialog.show();
         });
 
-                mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
@@ -86,12 +85,11 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                if (dy<0 && !fab.isShown()) {
+                if (dy < 0 && !fab.isShown()) {
                     fab.show();
                     fab.animate().scaleX(1f).start();
                     fab.animate().scaleY(1f).start();
-                }
-                else if(dy>0 && fab.isShown()) {
+                } else if (dy > 0 && fab.isShown()) {
                     fab.animate().scaleX(0f).start();
                     fab.animate().scaleY(0f).start();
                     fab.hide();
@@ -101,30 +99,15 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void getUI(){
+    public void getUI() {
         mRecyclerView = findViewById(R.id.rvAuthors);
         mRecyclerView.addItemDecoration(new SpacesItemDecoration(7));
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        fillList(authors);
-    }
-    public void fillList(List<Author> authors){
-        Parcelable state = mLayoutManager.onSaveInstanceState();
-        mAdapter = new AuthorsRecyclerVIewAdapter(this,authors);
+        mAdapter = new AuthorsRecyclerVIewAdapter(this, realm.where(Author.class).findAll(), realm);
         mRecyclerView.setAdapter(mAdapter);
+        Parcelable state = mLayoutManager.onSaveInstanceState();
         mLayoutManager.onRestoreInstanceState(state);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        outState.putParcelable("State",mLayoutManager.onSaveInstanceState());
-        super.onSaveInstanceState(outState, outPersistentState);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        mLayoutManager.onRestoreInstanceState(savedInstanceState.getParcelable("State"));
-        super.onRestoreInstanceState(savedInstanceState);
     }
 
     @Override
@@ -132,13 +115,23 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_settings) {
+         /*   realm.beginTransaction();
+            realm.deleteAll();
+            realm.commitTransaction();*/
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        realm.close();
     }
 }

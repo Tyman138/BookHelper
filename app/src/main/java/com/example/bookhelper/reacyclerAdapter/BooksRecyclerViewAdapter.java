@@ -18,50 +18,38 @@ import android.widget.TextView;
 import com.example.bookhelper.R;
 import com.example.bookhelper.entity.Book;
 
-import java.util.List;
 import java.util.Random;
 
-public class BooksRecyclerViewAdapter extends RecyclerView.Adapter<BooksRecyclerViewAdapter.ViewHolder> {
-    private Context ctx;
-    private List<Book> books;
+import io.realm.Realm;
+import io.realm.RealmChangeListener;
+import io.realm.RealmList;
 
-    public BooksRecyclerViewAdapter(Context ctx, List<Book> books) {
+public class BooksRecyclerViewAdapter extends RecyclerView.Adapter<BooksRecyclerViewAdapter.ViewHolder> implements RealmChangeListener {
+    private Context ctx;
+    private RealmList<Book> books;
+    private Realm realm;
+
+    public BooksRecyclerViewAdapter(Context ctx, RealmList<Book> books, Realm realm) {
         this.ctx = ctx;
         this.books = books;
+        this.realm = realm;
     }
+
     private int getRandomColor() {
         Random rnd = new Random();
         return Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
     }
-    class ViewHolder extends RecyclerView.ViewHolder {
-        View v;
-        TextView bookNameTextView;
-        TextView genreTextView;
-        TextView numbersOfPagesTextView;
-        TextView langTextVIew;
-        TextView editionTextView;
-        TextView publisherTextView;
-        TextView colorView;
-        @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-        ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            this.v = itemView;
-            colorView = itemView.findViewById(R.id.colorView);
-            colorView.setBackgroundColor(getRandomColor());
-            bookNameTextView = itemView.findViewById(R.id.bookNameTextView);
-            genreTextView = itemView.findViewById(R.id.genreTextView);
-            numbersOfPagesTextView = itemView.findViewById(R.id.numbersOfPagesTextView);
-            langTextVIew = itemView.findViewById(R.id.langTextVIew);
-            editionTextView = itemView.findViewById(R.id.editionTextView);
-            publisherTextView = itemView.findViewById(R.id.publisherTextView);
-            itemView.setClipToOutline(true);
-        }
+
+    @Override
+    public void onChange(Object o) {
+        notifyDataSetChanged();
     }
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View bookView = LayoutInflater.from(ctx).inflate(R.layout.book_layout,viewGroup,false);
+        View bookView = LayoutInflater.from(ctx).inflate(R.layout.book_layout, viewGroup, false);
         return new ViewHolder(bookView);
     }
 
@@ -74,11 +62,13 @@ public class BooksRecyclerViewAdapter extends RecyclerView.Adapter<BooksRecycler
         viewHolder.langTextVIew.setText(book.getLanguage());
         viewHolder.editionTextView.setText(book.getEdition());
         viewHolder.publisherTextView.setText(book.getPublisher());
-        viewHolder.v.setOnLongClickListener(v ->{
+        viewHolder.v.setOnLongClickListener(v -> {
             DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
                 switch (which) {
                     case DialogInterface.BUTTON_POSITIVE:
-                        books.remove(position);
+                        realm.beginTransaction();
+                        books.get(position).deleteFromRealm();
+                        realm.commitTransaction();
                         notifyDataSetChanged();
                         break;
 
@@ -113,12 +103,14 @@ public class BooksRecyclerViewAdapter extends RecyclerView.Adapter<BooksRecycler
                                             || addPublisherET.getText().toString().isEmpty()) {
                                         Snackbar.make(v, "Произведение не  было изменено, не все поля заполненны", Snackbar.LENGTH_LONG).show();
                                     } else {
+                                        realm.beginTransaction();
                                         books.get(position).setName(addBookNameET.getText().toString());
                                         books.get(position).setGenre(addGengreET.getText().toString());
                                         books.get(position).setNumbersOfPages(addNumbersOfPagesET.getText().toString());
                                         books.get(position).setLanguage(addLangET.getText().toString());
                                         books.get(position).setEdition(addEditionET.getText().toString());
                                         books.get(position).setPublisher(addPublisherET.getText().toString());
+                                        realm.commitTransaction();
                                         notifyDataSetChanged();
                                     }
                                 });
@@ -138,6 +130,32 @@ public class BooksRecyclerViewAdapter extends RecyclerView.Adapter<BooksRecycler
     @Override
     public int getItemCount() {
         return books.size();
+    }
+
+    class ViewHolder extends RecyclerView.ViewHolder {
+        View v;
+        TextView bookNameTextView;
+        TextView genreTextView;
+        TextView numbersOfPagesTextView;
+        TextView langTextVIew;
+        TextView editionTextView;
+        TextView publisherTextView;
+        TextView colorView;
+
+        @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+        ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            this.v = itemView;
+            colorView = itemView.findViewById(R.id.colorView);
+            colorView.setBackgroundColor(getRandomColor());
+            bookNameTextView = itemView.findViewById(R.id.bookNameTextView);
+            genreTextView = itemView.findViewById(R.id.genreTextView);
+            numbersOfPagesTextView = itemView.findViewById(R.id.numbersOfPagesTextView);
+            langTextVIew = itemView.findViewById(R.id.langTextVIew);
+            editionTextView = itemView.findViewById(R.id.editionTextView);
+            publisherTextView = itemView.findViewById(R.id.publisherTextView);
+            itemView.setClipToOutline(true);
+        }
     }
 
 

@@ -1,12 +1,26 @@
 package com.example.bookhelper.entity;
 
-public class Book {
+import io.realm.RealmObject;
+
+public class Book extends RealmObject {
     private String name;
     private String genre;
     private String numbersOfPages;
     private String language;
     private String edition;
     private String publisher;
+
+    public Book() {
+    }
+
+    public Book(String name, String genre, String numbersOfPages, String language, String edition, String publisher) {
+        this.name = name;
+        this.genre = genre;
+        this.numbersOfPages = numbersOfPages;
+        this.language = language;
+        this.edition = edition;
+        this.publisher = publisher;
+    }
 
     public String getName() {
         return name;
@@ -53,15 +67,6 @@ public class Book {
     }
 
     public void setPublisher(String publisher) {
-        this.publisher = publisher;
-    }
-
-    public Book(String name, String genre, String numbersOfPages, String language, String edition, String publisher) {
-        this.name = name;
-        this.genre = genre;
-        this.numbersOfPages = numbersOfPages;
-        this.language = language;
-        this.edition = edition;
         this.publisher = publisher;
     }
 }

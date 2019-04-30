@@ -3,7 +3,6 @@ package com.example.bookhelper;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -16,14 +15,15 @@ import android.view.LayoutInflater;
 import android.widget.EditText;
 
 import com.example.bookhelper.RecyclerViewDercirator.SpacesItemDecoration;
+import com.example.bookhelper.entity.Author;
 import com.example.bookhelper.entity.Book;
 import com.example.bookhelper.reacyclerAdapter.BooksRecyclerViewAdapter;
 
-import java.util.ArrayList;
-import java.util.List;
+import io.realm.Realm;
 
 public class BooksActivity extends AppCompatActivity {
-    public List<Book> books;
+    private Realm realm;
+    private Author author;
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -34,16 +34,11 @@ public class BooksActivity extends AppCompatActivity {
         setContentView(R.layout.activity_books);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        books = new ArrayList<>();
-        books.add(new Book("Сказка о рыбаке и рыбке", "Сказка", "16", "Русский", "200", "АСТ"));
-        books.add(new Book("Сказка о рыбаке и рыбке", "Сказка", "16", "Русский", "200", "АСТ"));
-        books.add(new Book("Сказка о рыбаке и рыбке", "Сказка", "16", "Русский", "200", "АСТ"));
-        books.add(new Book("Сказка о рыбаке и рыбке", "Сказка", "16", "Русский", "200", "АСТ"));
-        books.add(new Book("Сказка о рыбаке и рыбке", "Сказка", "16", "Русский", "200", "АСТ"));
-        books.add(new Book("Сказка о рыбаке и рыбке", "Сказка", "16", "Русский", "200", "АСТ"));
-        books.add(new Book("Сказка о рыбаке и рыбке", "Сказка", "16", "Русский", "200", "АСТ"));
-        books.add(new Book("Сказка о рыбаке и рыбке", "Сказка", "16", "Русский", "200", "АСТ"));
-        books.add(new Book("Сказка о рыбаке и рыбке", "Сказка", "16", "Русский", "200", "АСТ"));
+
+        Realm.init(this);
+        realm = Realm.getDefaultInstance();
+
+        author = realm.where(Author.class).equalTo("id", getIntent().getExtras().getInt("authorId")).findFirst();
 
         getUI();
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -68,7 +63,8 @@ public class BooksActivity extends AppCompatActivity {
                                 || addPublisherET.getText().toString().isEmpty()) {
                             Snackbar.make(view, "Произведение не добавлено, не все поля заполненны", Snackbar.LENGTH_LONG).show();
                         } else {
-                            books.add(new Book(
+                            realm.beginTransaction();
+                            author.getBooks().add(new Book(
                                     addBookNameET.getText().toString(),
                                     addGengreET.getText().toString(),
                                     addNumbersOfPagesET.getText().toString(),
@@ -76,6 +72,7 @@ public class BooksActivity extends AppCompatActivity {
                                     addEditionET.getText().toString(),
                                     addPublisherET.getText().toString()
                             ));
+                            realm.commitTransaction();
                             mAdapter.notifyDataSetChanged();
                         }
                     });
@@ -111,26 +108,17 @@ public class BooksActivity extends AppCompatActivity {
         mRecyclerView.addItemDecoration(new SpacesItemDecoration(7));
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        fillList();
-    }
-
-    private void fillList() {
-        Parcelable state = mLayoutManager.onSaveInstanceState();
-        mAdapter = new BooksRecyclerViewAdapter(this, books);
+        mAdapter = new BooksRecyclerViewAdapter(this, author.getBooks(), realm);
         mRecyclerView.setAdapter(mAdapter);
-        mLayoutManager.onRestoreInstanceState(state);
+
+        Parcelable state = mLayoutManager.onSaveInstanceState();
+        mLayoutManager.onRestoreInstanceState(state);//SAVE SATE OF RECYCLER
+
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        outState.putParcelable("State", mLayoutManager.onSaveInstanceState());
-        super.onSaveInstanceState(outState, outPersistentState);
+    protected void onDestroy() {
+        super.onDestroy();
+        realm.close();
     }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        mLayoutManager.onRestoreInstanceState(savedInstanceState.getParcelable("State"));
-        super.onRestoreInstanceState(savedInstanceState);
-    }
-
 }
