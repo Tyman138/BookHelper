@@ -65,8 +65,6 @@ public class AuthorsRecyclerVIewAdapter extends RecyclerView.Adapter<AuthorsRecy
         viewHolder.yearsLiving.setText(mAuthors.get(position).getYearsOfLiving());
 
         viewHolder.v.setOnClickListener(v -> {
-            Snackbar.make(v, "OnClick " + position, Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();
             Intent intent = new Intent(ctx, BooksActivity.class);
             intent.putExtra("authorId", mAuthors.get(position).getId());
             ctx.startActivity(intent);
@@ -117,7 +115,6 @@ public class AuthorsRecyclerVIewAdapter extends RecyclerView.Adapter<AuthorsRecy
             AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
             builder.setMessage("Что вы хотите сделать?").setPositiveButton("Удалить", dialogClickListener)
                     .setNegativeButton("Изменить", dialogClickListener).show();
-            Snackbar.make(v, String.valueOf(mAuthors.get(position).getId()), Snackbar.LENGTH_LONG).show();//FIXME УДАЛИТЬ
             return true;
         });
 
